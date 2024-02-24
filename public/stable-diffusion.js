@@ -24,9 +24,44 @@ let seed = -1;
 
 let current_img = undefined;
 let count = 0;
+let reset = false;
+let style_id = 5;
+
+let text = document.querySelector("#chat");
+
+function isIntegerInRange(text, min, max) {
+    const number = Number(text); // Convert text to a number
+    // Check if it's an integer and within the specified range
+    if (Number.isInteger(number) && number >= min && number <= max) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
+text.addEventListener("keydown", async (e) => {
+  if (e.key === "Enter" && text.value.length !== 0) {
+    if(text.value == 'r') {
+        console.log('resetting');
+        reset = true;
+    }
+    else if(parseInt(text.value)) {
+        const n = parseInt(text.value);
+        if(n > 0 && n < 6) {
+            console.log(text.value);
+            style_id = parseInt(text.value);
+        }
+    }
+    text.value = "";
+  }
+});
 
 async function generate() {
   const person_img = await captureFrame(); 
+  if(reset) {
+    current_img = undefined;
+    reset = true;
+  }
   request_img2img_reference(description, current_img ? current_img : embryo_img, person_img, 512, 512) // todo: current image 
   .then(data => {
     // console.log(data.images[0]);
@@ -103,7 +138,7 @@ var request = {
 var request_in_progress = false;
 
 const request_img2img_reference = async (prompt, img, ref_img, w = 512, h = 512, steps = 20) => {
-  console.log('controlnet:', url); // debug
+  console.log('controlnet:', url, style_id); // debug
   
   if(request_in_progress) {    
       return null;
